@@ -1,5 +1,5 @@
 
-name: MLOps CI/CD
+name: MLOPS EXP-10
 
 on:
   push:
@@ -8,6 +8,8 @@ on:
     branches: [ main ]
 
 jobs:
+
+  # Continuous Integration
   test:
     runs-on: ubuntu-latest
 
@@ -27,3 +29,29 @@ jobs:
       - name: Run Tests
         run: |
           pytest
+
+  # Continuous Delivery
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create Deployment Package
+        run: |
+          mkdir deployment
+          cp model.py deployment/
+          cp requirements.txt deployment/
+          cp -r tests deployment/
+
+      - name: Create ZIP Artifact
+        run: |
+          zip -r ml-model-package.zip deployment
+
+      - name: Upload Deployment Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-model-package
+          path: ml-model-package.zip
